@@ -1,2 +1,3 @@
 - Don't show 'No Selection' in the text fields.
 - Dynamically figure out Passenger config, `gem list --details passenger` gives installation location
+- More than one hostname, for apps that use subdomains
