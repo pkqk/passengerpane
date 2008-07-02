@@ -34,20 +34,22 @@ class ConfigInstaller
     end
   end
   
-  CONF = "/private/etc/apache2/httpd.conf"
+  CONF = "/private/etc/apache2/other/passenger_pane.conf"
   def verify_httpd_conf
-    unless File.read(CONF).include? 'Include /private/etc/apache2/passenger_pane_vhosts/*.conf'
-      OSX::NSLog("Will try to append passenger pane vhosts conf to: #{CONF}")
+    unless File.exists?(CONF)
+      OSX::NSLog("Will try to write passenger pane vhosts conf to: #{CONF}")
       File.open(CONF, 'a') do |f|
-        f << %{
-
+        f << <<-APACHECONF
 # Added by the Passenger preference pane
-# Make sure to include the Passenger configuration (the LoadModule,
-# PassengerRoot, and PassengerRuby directives) before this section.
+LoadModule passenger_module /Library/Ruby/Gems/1.8/gems/passenger-2.0.1/ext/apache2/mod_passenger.so
 <IfModule passenger_module>
+  PassengerRoot /Library/Ruby/Gems/1.8/gems/passenger-2.0.1
+  PassengerRuby /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby
+
   NameVirtualHost *:80
   Include /private/etc/apache2/passenger_pane_vhosts/*.conf
-</IfModule>}
+</IfModule>
+APACHECONF
       end
     end
   end
