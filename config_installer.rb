@@ -39,7 +39,7 @@ class ConfigInstaller
     unless File.exists?(CONF)
       OSX::NSLog("Will try to write passenger pane vhosts conf to: #{CONF}")
       File.open(CONF, 'a') do |f|
-        f << <<-APACHECONF
+        f.write(<<APACHECONF)
 # Added by the Passenger preference pane
 LoadModule passenger_module /Library/Ruby/Gems/1.8/gems/passenger-2.0.1/ext/apache2/mod_passenger.so
 <IfModule passenger_module>

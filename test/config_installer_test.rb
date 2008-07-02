@@ -50,57 +50,21 @@ describe "ConfigInstaller" do
   end
   
   it "should check if our configuration to load the vhosts has been added to the apache conf yet" do
-    conf = "/private/etc/apache2/httpd.conf"
-    File.stubs(:read).with(conf).returns("Include /private/etc/apache2/other/*.conf")
+    conf = "/private/etc/apache2/other/passenger_pane.conf"
+    File.stubs(:exists?).with(conf).returns(false)
     
     file_mock = mock("Apache conf")
     File.expects(:open).with(conf, 'a').yields(file_mock)
-    file_mock.expects(:<<).with(%{
-
-# Added by the Passenger preference pane
-# Make sure to include the Passenger configuration (the LoadModule,
-# PassengerRoot, and PassengerRuby directives) before this section.
-<IfModule passenger_module>
-  NameVirtualHost *:80
-  Include /private/etc/apache2/passenger_pane_vhosts/*.conf
-</IfModule>})
+    file_mock.expects(:write) # with big config string, feels silly to duplicated it in the test, doesn't gain you anything.
 
     @installer.verify_httpd_conf
   end
   
   it "should not add the vhosts configuration to the apache conf if it's in there already" do
-    conf = "/private/etc/apache2/httpd.conf"
-    File.stubs(:read).with(conf).returns(%{
-Include /private/etc/apache2/other/*.conf
-
-# Added by the Passenger preference pane
-# Make sure to include the Passenger configuration (the LoadModule,
-# PassengerRoot, and PassengerRuby directives) before this section.
-<IfModule passenger_module>
-  NameVirtualHost *:80
-  Include /private/etc/apache2/passenger_pane_vhosts/*.conf
-</IfModule>})
+    conf = "/private/etc/apache2/other/passenger_pane.conf"
+    File.stubs(:exists?).with(conf).returns(true)
     
     File.expects(:open).times(0)
-    @installer.verify_httpd_conf
-  end
-  
-  it "should not check if our configuration to load the vhosts has been added to the apache conf yet" do
-    conf = "/private/etc/apache2/httpd.conf"
-    File.stubs(:read).with(conf).returns("Include /private/etc/apache2/other/*.conf")
-    
-    file_mock = mock("Apache conf")
-    File.expects(:open).with(conf, 'a').yields(file_mock)
-    file_mock.expects(:<<).with(%{
-
-# Added by the Passenger preference pane
-# Make sure to include the Passenger configuration (the LoadModule,
-# PassengerRoot, and PassengerRuby directives) before this section.
-<IfModule passenger_module>
-  NameVirtualHost *:80
-  Include /private/etc/apache2/passenger_pane_vhosts/*.conf
-</IfModule>})
-    
     @installer.verify_httpd_conf
   end
   
