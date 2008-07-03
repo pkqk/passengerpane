@@ -5,6 +5,10 @@ task :run do
   sh "open build/Release/Passenger.prefPane"
 end
 
+task :clean do
+  sh 'xcodebuild clean'
+end
+
 desc 'This is the normal way to run the tests. The :test_task will run all tests at the same time and fail because of recursive kvc stuff.'
 task :test_normal do
   Dir.glob("test/*_test.rb").each do |test|
